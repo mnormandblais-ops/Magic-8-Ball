@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Magic 8 Ball</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      overflow: hidden;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 2.5rem;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+      letter-spacing: 2px;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 30px;
+    }
+
+    /* Input Section */
+    .input-group {
+      display: flex;
+      gap: 10px;
+      z-index: 10;
+    }
+
+    input[type="text"] {
+      padding: 12px 20px;
+      border-radius: 25px;
+      border: 2px solid #3b4252;
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+      width: 280px;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(5px);
+    }
+
+    input[type="text"]:focus {
+      border-color: #88c0d0;
+      box-shadow: 0 0 10px rgba(136, 192, 208, 0.3);
+    }
+
+    button {
+      padding: 12px 25px;
+      border-radius: 25px;
+      border: none;
+      background: linear-gradient(135deg, #88c0d0, #5e81ac);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(136, 192, 208, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    /* Magic 8 Ball Styling */
+    .ball-container {
+      perspective: 1000px;
+    }
+
+    .ball {
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #4c566a, #000 60%);
+      box-shadow: 
+        inset -10px -10px 30px rgba(0, 0, 0, 0.8),
+        0 20px 50px rgba(0, 0, 0, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.1s ease;
+      user-select: none;
+    }
+
+    /* The Liquid Window */
+    .window {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, #0f1c3f, #050a18 80%);
+      border: 4px solid #111;
+      box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* 8-Logo Mode */
+    .eight {
+      font-size: 5rem;
+      font-weight: bold;
+      color: #fff;
+      background: #fff;
+      color: #000;
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+      transition: opacity 0.5s ease;
+    }
+
+    /* Floating Triangle Die */
+    .die {
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-left: 55px solid transparent;
+      border-right: 55px solid transparent;
+      border-bottom: 95px solid #1a365d;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: scale(0.5) rotate(-10deg);
+      transition: opacity 1.5s ease, transform 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      filter: drop-shadow(0 0 5px rgba(0, 150, 255, 0.3));
+    }
+
+    .die-text {
+      position: absolute;
+      top: 45px;
+      width: 70px;
+      margin-left: -35px;
+      color: #81a1c1;
+      font-size: 0.75rem;
+      font-weight: bold;
+      text-align: center;
+      text-transform: uppercase;
+      line-height: 1.1;
+      text-shadow: 0 0 3px rgba(0, 0, 0, 0.8);
+    }
+
+    /* Animations */
+    .shake {
+      animation: shakeBall 0.8s ease-in-out;
+    }
+
+    .die.reveal {
+      opacity: 1;
+      transform: scale(1) rotate(0deg);
+    }
+
+    @keyframes shakeBall {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      15% { transform: translate(-15px, -15px) rotate(-10deg); }
+      30% { transform: translate(15px, 10px) rotate(10deg); }
+      45% { transform: translate(-10px, 15px) rotate(-5deg); }
+      60% { transform: translate(10px, -10px) rotate(5deg); }
+      75% { transform: translate(-5px, 5px) rotate(-2deg); }
+      100% { transform: translate(0, 0) rotate(0deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>MAGIC 8 BALL</h1>
+
+  <div class="container">
+    <div class="input-group">
+      <input type="text" id="questionInput" placeholder="Ask a yes/no question..." autocomplete="off">
+      <button id="askBtn">Ask</button>
+    </div>
+
+    <div class="ball-container">
+      <div class="ball" id="ball">
+        <div class="window">
+          <div class="eight" id="eight">8</div>
+          <div class="die" id="die">
+            <span class="die-text" id="answerText"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const answers = [
+      // Positive
+      "It is certain", "It is decidedly so", "Without a doubt",
+      "Yes definitely", "You may rely on it", "As I see it, yes",
+      "Most likely", "Outlook good", "Yes", "Signs point to yes",
+      // Neutral
+      "Reply hazy, try again", "Ask again later", "Better not tell you now",
+      "Cannot predict now", "Concentrate and ask again",
+      // Negative
+      "Don't count on it", "My reply is no", "My sources say no",
+      "Outlook not so good", "Very doubtful"
+    ];
+
+    const ball = document.getElementById('ball');
+    const eight = document.getElementById('eight');
+    const die = document.getElementById('die');
+    const answerText = document.getElementById('answerText');
+    const askBtn = document.getElementById('askBtn');
+    const questionInput = document.getElementById('questionInput');
+
+    let isShaking = false;
+
+    // Web Audio API Sound Generator
+    function playShakeSound() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // Liquid slosh effect using filtered noise
+        const bufferSize = audioCtx.sampleRate * 0.6;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const output = buffer.getChannelData(0);
+        
+        for (let i = 0; i < bufferSize; i++) {
+          output[i] = Math.random() * 2 - 1;
+        }
+
+        const whiteNoise = audioCtx.createBufferSource();
+        whiteNoise.buffer = buffer;
+
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(200, audioCtx.currentTime);
+        filter.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.3);
+        filter.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.6);
+
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6);
+
+        whiteNoise.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        whiteNoise.start();
+      } catch (e) {
+        // Fallback gracefully if audio isn't supported/allowed
+      }
+    }
+
+    function askQuestion() {
+      if (isShaking) return;
+
+      const question = questionInput.value.trim();
+      if (!question) {
+        alert("Please ask a question first!");
+        questionInput.focus();
+        return;
+      }
+
+      isShaking = true;
+      playShakeSound();
+
+      // Hide active components
+      eight.style.opacity = '0';
+      die.classList.remove('reveal');
+
+      // Add shake animation class
+      ball.classList.add('shake');
+
+      setTimeout(() => {
+        // Select random answer
+        const randomIndex = Math.floor(Math.random() * answers.length);
+        answerText.textContent = answers[randomIndex];
+
+        // End shake and reveal die
+        ball.classList.remove('shake');
+        eight.style.display = 'none';
+        die.classList.add('reveal');
+
+        isShaking = false;
+      }, 800);
+    }
+
+    // Event Listeners
+    askBtn.addEventListener('click', askQuestion);
+    ball.addEventListener('click', askQuestion);
+
+    questionInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        askQuestion();
+      }
+    });
+  </script>
+</body>
+</html>
